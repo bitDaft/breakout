@@ -4,7 +4,7 @@
  * Created Date: Friday December 27th 2019
  * Author: bitDaft
  * -----
- * Last Modified: Saturday December 28th 2019 11:06:42 am
+ * Last Modified: Saturday December 28th 2019 12:54:32 pm
  * Modified By: bitDaft at <ajaxhis@tutanota.com>
  * -----
  * Copyright (c) 2019 bitDaft
@@ -18,7 +18,7 @@
 
 #include <iostream>
 
-#define BRICK_ROWS 20
+#define BRICK_ROWS 30
 #define BRICK_PER_ROW_COUNT 25 // can be a maximum of 33 with default size of texture
 
 Breakout::Breakout(const int wndWidth, const int wndHeight, const char *wndName)
@@ -97,7 +97,7 @@ void Breakout::init()
   _reactionMapper->bindActionToReaction<quit>(Actions::QUIT);
   _inputManager.pushEntity(&paddle);
 
-  setRandSeed(45287349545, 327658327957364, 324658723498543, 3784658327953);
+  setRandSeed(45287349545, 7658327957364, 4658723498543, 84658327953);
 }
 
 void Breakout::end()
@@ -123,5 +123,31 @@ void Breakout::update(const sf::Time &dt)
     }
     _vel.x = _vel.x + (paddle.getSpeed() * paddle.getDirection() * dt.asSeconds());
     ball.setVelocity(_vel);
+  }
+
+  for (int i = 0; i < brick_list.size(); i++)
+  {
+    if (brick_list[i] != nullptr)
+    {
+      sf::Vector2f brickpos = brick_list[i]->getPosition();
+      cond11 = ballpos.x < (brickpos.x + brick_list[i]->getWidth());
+      cond12 = (ballpos.x + ball.getWidth()) > brickpos.x;
+      cond21 = ballpos.y < (brickpos.y + brick_list[i]->getHeight());
+      cond22 = (ballpos.y + ball.getHeight()) > brickpos.y;
+      if (cond11 && cond12 && cond21 && cond22)
+      {
+        std::cout << "hit brick\n";
+        delete brick_list[i];
+        brick_list[i] = nullptr;
+        break;
+        // sf::Vector2f _vel = ball.getVelocity();
+        // if (_vel.y > 0)
+        // {
+        //   _vel.y = -_vel.y;
+        // }
+        // _vel.x = _vel.x + (paddle.getSpeed() * paddle.getDirection() * dt.asSeconds());
+        // ball.setVelocity(_vel);
+      }
+    }
   }
 }

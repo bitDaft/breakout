@@ -4,7 +4,7 @@
  * Created Date: Friday December 27th 2019
  * Author: bitDaft
  * -----
- * Last Modified: Friday December 27th 2019 3:12:28 pm
+ * Last Modified: Saturday December 28th 2019 11:34:18 am
  * Modified By: bitDaft at <ajaxhis@tutanota.com>
  * -----
  * Copyright (c) 2019 bitDaft
@@ -27,8 +27,14 @@ public:
   Brick(float x, float y, sf::Texture &texture);
   ~Brick();
 
+  sf::Vector2f getPosition();
+  int getWidth();
+  int getHeight();
+
 private:
   sf::Sprite brick;
+  int width;
+  int height;
 
 public:
 };

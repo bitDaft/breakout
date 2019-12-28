@@ -1,0 +1,9 @@
+
+# /include/SFML/*
+# /lib/*/*
+# /bin/*/*
+/obj
+/.vscode
+*.o
+*.a
+*.gch
