@@ -4,7 +4,7 @@
  * Created Date: Friday December 27th 2019
  * Author: bitDaft
  * -----
- * Last Modified: Saturday December 28th 2019 12:54:32 pm
+ * Last Modified: Sunday December 29th 2019 10:14:48 pm
  * Modified By: bitDaft at <ajaxhis@tutanota.com>
  * -----
  * Copyright (c) 2019 bitDaft
@@ -91,8 +91,8 @@ void Breakout::init()
 
   paddle.setTexture(ResourceManager::getTexture(paddleHandle));
   ball.setTexture(ResourceManager::getTexture(ballHandle));
-  ball.setPosition(gameWindow.getSize().x / 2, gameWindow.getSize().y - 200);
-  ball.setVelocity(sf::Vector2f(0, 100));
+  ball.setPosition(gameWindow.getSize().x / 2, gameWindow.getSize().y - 100);
+  ball.setVelocity(sf::Vector2f(100, -50));
 
   _reactionMapper->bindActionToReaction<quit>(Actions::QUIT);
   _inputManager.pushEntity(&paddle);
@@ -109,45 +109,111 @@ void Breakout::update(const sf::Time &dt)
   // check for collisions
   sf::Vector2f ballpos = ball.getPosition();
   sf::Vector2f paddlepos = paddle.getPosition();
-  bool cond11 = ballpos.x < (paddlepos.x + paddle.getWidth());
-  bool cond12 = (ballpos.x + ball.getWidth()) > paddlepos.x;
-  bool cond21 = ballpos.y < (paddlepos.y + paddle.getHeight());
-  bool cond22 = (ballpos.y + ball.getHeight()) > paddlepos.y;
+  sf::Vector2f _vel = ball.getVelocity();
 
-  if (cond11 && cond12 && cond21 && cond22)
+  // check whether it is below all the block threshold
+  int endY = ball.getHeight() * BRICK_ROWS + 100; // 100 is the start offset
+
+  if (ballpos.y > endY && _vel.y > 0) // if it is below blocks and move down check paddle collision
   {
-    sf::Vector2f _vel = ball.getVelocity();
-    if (_vel.y > 0)
+    bool cond11 = ballpos.x < (paddlepos.x + paddle.getWidth());
+    bool cond12 = (ballpos.x + ball.getWidth()) > paddlepos.x;
+    bool cond21 = ballpos.y < (paddlepos.y + paddle.getHeight());
+    bool cond22 = (ballpos.y + ball.getHeight()) > paddlepos.y;
+
+    if (cond11 && cond12 && cond21 && cond22)
+    {
+      _vel.y = -_vel.y;
+      _vel.x = _vel.x + (paddle.getSpeed() * paddle.getDirection() * dt.asSeconds());
+      _vel.x *= 1.05;
+      _vel.y *= 1.05;
+      ball.setVelocity(_vel);
+    }
+  }
+  else // else check for brick collision
+  {
+    int hitX = false;
+    int hitY = false;
+    int xdist = 0;
+    int ydist = 0;
+    int toDelete = -1;
+    for (int i = 0; i < brick_list.size(); i++)
+    {
+      sf::Vector2f preballpos = ball.getPosition();
+      if (brick_list[i] != nullptr)
+      {
+        sf::Vector2f brickpos = brick_list[i]->getPosition();
+        if (_vel.y > 0)
+        {
+          if (brickpos.y < ballpos.y - 10)
+          {
+            continue;
+          }
+        }
+        else
+        {
+          if (brickpos.y > ballpos.y + 10)
+          {
+            break;
+          }
+        }
+        bool cond11 = ballpos.x < (brickpos.x + brick_list[i]->getWidth());
+        bool cond12 = (ballpos.x + ball.getWidth()) > brickpos.x;
+        bool cond21 = ballpos.y < (brickpos.y + brick_list[i]->getHeight());
+        bool cond22 = (ballpos.y + ball.getHeight()) > brickpos.y;
+        if (cond11 && cond12 && cond21 && cond22)
+        {
+          _vel.x *= 1.01;
+          _vel.y *= 1.01;
+          if (!hitX && !hitY)
+          {
+            int tempx = xdist;
+            int tempy = ydist;
+            xdist = ballpos.x + ball.getWidth() - brickpos.x;
+            if (xdist > brick_list[i]->getWidth())
+            {
+              xdist = brickpos.x + brick_list[i]->getWidth() - ballpos.x;
+            }
+            ydist = ballpos.y + ball.getHeight() - brickpos.y;
+            if (ydist > brick_list[i]->getHeight())
+            {
+              ydist = brickpos.y + brick_list[i]->getHeight() - ballpos.y;
+            }
+            if (xdist < tempx || ydist < tempy)
+            {
+              xdist = tempx;
+              ydist = tempy;
+            }
+            else
+            {
+              toDelete = i;
+            }
+            if (xdist <= ydist)
+            {
+              hitX = true;
+            }
+            else if (xdist >= ydist)
+            {
+              hitY = true;
+            }
+            ball.setPosition(preballpos.x,preballpos.y);
+          }
+        }
+      }
+    }
+    if (hitX)
+    {
+      _vel.x = -_vel.x;
+    }
+    if (hitY)
     {
       _vel.y = -_vel.y;
     }
-    _vel.x = _vel.x + (paddle.getSpeed() * paddle.getDirection() * dt.asSeconds());
-    ball.setVelocity(_vel);
-  }
-
-  for (int i = 0; i < brick_list.size(); i++)
-  {
-    if (brick_list[i] != nullptr)
+    if (hitX || hitY)
     {
-      sf::Vector2f brickpos = brick_list[i]->getPosition();
-      cond11 = ballpos.x < (brickpos.x + brick_list[i]->getWidth());
-      cond12 = (ballpos.x + ball.getWidth()) > brickpos.x;
-      cond21 = ballpos.y < (brickpos.y + brick_list[i]->getHeight());
-      cond22 = (ballpos.y + ball.getHeight()) > brickpos.y;
-      if (cond11 && cond12 && cond21 && cond22)
-      {
-        std::cout << "hit brick\n";
-        delete brick_list[i];
-        brick_list[i] = nullptr;
-        break;
-        // sf::Vector2f _vel = ball.getVelocity();
-        // if (_vel.y > 0)
-        // {
-        //   _vel.y = -_vel.y;
-        // }
-        // _vel.x = _vel.x + (paddle.getSpeed() * paddle.getDirection() * dt.asSeconds());
-        // ball.setVelocity(_vel);
-      }
+      delete brick_list[toDelete];
+      brick_list[toDelete] = nullptr;
     }
+    ball.setVelocity(_vel);
   }
 }

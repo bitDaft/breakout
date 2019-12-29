@@ -4,7 +4,7 @@
  * Created Date: Friday December 27th 2019
  * Author: bitDaft
  * -----
- * Last Modified: Friday December 27th 2019 11:06:09 pm
+ * Last Modified: Sunday December 29th 2019 9:46:40 pm
  * Modified By: bitDaft at <ajaxhis@tutanota.com>
  * -----
  * Copyright (c) 2019 bitDaft
@@ -13,6 +13,9 @@
 #include "ball.hpp"
 #include "xoshiro256plus.hpp"
 #include <iostream>
+
+#define MAX_SPEED_X 400
+#define MAX_SPEED_Y 400
 
 Ball::Ball()
     : IUpdatable(1),
@@ -37,10 +40,12 @@ void Ball::update(const sf::Time &dt)
   if (new_pos.x < 0 || new_pos.x + width > 800)
   {
     velocity.x = -velocity.x;
+    new_pos = ball.getPosition() + (velocity * dt.asSeconds());
   }
   if (new_pos.y < 0 || new_pos.y + height > 600)
   {
     velocity.y = -velocity.y;
+    new_pos = ball.getPosition() + (velocity * dt.asSeconds());
   }
   ball.setPosition(new_pos);
 }
@@ -57,6 +62,14 @@ void Ball::setTexture(sf::Texture &texture)
 }
 void Ball::setVelocity(sf::Vector2f velocity)
 {
+  if (velocity.x > MAX_SPEED_X)
+  {
+    velocity.x = MAX_SPEED_X;
+  }
+  if (velocity.y > MAX_SPEED_Y)
+  {
+    velocity.y = MAX_SPEED_Y;
+  }
   this->velocity = velocity;
 }
 sf::Vector2f Ball::getPosition()
