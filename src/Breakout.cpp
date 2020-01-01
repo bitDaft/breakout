@@ -4,7 +4,7 @@
  * Created Date: Friday December 27th 2019
  * Author: bitDaft
  * -----
- * Last Modified: Sunday December 29th 2019 10:14:48 pm
+ * Last Modified: Sunday December 29th 2019 10:59:21 pm
  * Modified By: bitDaft at <ajaxhis@tutanota.com>
  * -----
  * Copyright (c) 2019 bitDaft
@@ -137,9 +137,9 @@ void Breakout::update(const sf::Time &dt)
     int xdist = 0;
     int ydist = 0;
     int toDelete = -1;
+    
     for (int i = 0; i < brick_list.size(); i++)
     {
-      sf::Vector2f preballpos = ball.getPosition();
       if (brick_list[i] != nullptr)
       {
         sf::Vector2f brickpos = brick_list[i]->getPosition();
@@ -216,4 +216,5 @@ void Breakout::update(const sf::Time &dt)
     }
     ball.setVelocity(_vel);
   }
+  preballpos = ball.getPosition();
 }

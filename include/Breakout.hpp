@@ -4,7 +4,7 @@
  * Created Date: Friday December 27th 2019
  * Author: bitDaft
  * -----
- * Last Modified: Saturday December 28th 2019 10:02:20 am
+ * Last Modified: Sunday December 29th 2019 10:59:21 pm
  * Modified By: bitDaft at <ajaxhis@tutanota.com>
  * -----
  * Copyright (c) 2019 bitDaft
@@ -45,6 +45,7 @@ private:
   std::vector<Brick *> brick_list;
   Paddle paddle;
   Ball ball;
+  sf::Vector2f preballpos;
 };
 
 #endif
